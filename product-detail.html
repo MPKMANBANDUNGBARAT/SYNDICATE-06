@@ -78,7 +78,7 @@
 
             <div>
                 <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Nomor WhatsApp</label>
-                <input type="tel" name="whatsapp" id="form-whatsapp" required class="w-full bg-white/5 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition" placeholder="Contoh: 08123456789">
+                <input type="tel" name="whatsapp" pattern="[0-9]*" inputmode="numeric" placeholder="Contoh: 08123456789" required class="...">
             </div>
 
             <div>
@@ -89,7 +89,23 @@
                     <option value="Antar ke Kelas">Antar ke Kelas (+Rp2.000)</option>
                 </select>
             </div>
+            
+            <div class="space-y-4">
+    <label class="block text-[10px] text-zinc-500 uppercase font-bold italic">Status Pemesan</label>
+    <select name="status" id="user-status" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:border-red-600 outline-none" onchange="toggleKelas()">
+        <option value="Siswa MAN">Siswa MAN Bandung Barat</option>
+        <option value="Umum">Umum (Luar Sekolah)</option>
+    </select>
 
+    <div id="kelas-input">
+        <input type="text" name="kelas" placeholder="Contoh: XII - MIPA 1" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:border-red-600 outline-none">
+    </div>
+
+    <div class="p-4 bg-red-600/10 border border-red-600/20 rounded-xl">
+        <p class="text-[10px] text-red-500 font-bold uppercase italic mb-1">Metode Pembayaran:</p>
+        <p class="text-xs text-zinc-400">Cash di Basecamp / Transfer DANA ke 0812xxx (A.n Nama Kamu)</p>
+    </div>
+</div>
             <div>
                 <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Catatan Tambahan</label>
                 <textarea name="catatan" id="form-catatan" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition text-sm h-20" placeholder="Contoh: Kelas X-A / Titip di piket"></textarea>
@@ -118,6 +134,27 @@
             <p class="text-[10px]">BUKTI PEMESANAN DIGITAL</p>
         </div>
         
+        <div id="successModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
+    <div class="bg-white text-black p-8 rounded-none w-full max-w-sm shadow-2xl relative overflow-hidden font-mono">
+        <div class="absolute top-0 left-0 right-0 h-2 bg-zinc-200" style="clip-path: polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0);"></div>
+        
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-black italic uppercase tracking-tighter">SYNDICATE 06</h2>
+            <p class="text-[10px] uppercase">Official Digital Receipt</p>
+        </div>
+
+        <div class="border-y border-dashed border-zinc-300 py-4 my-4 space-y-2 text-xs">
+            <div class="flex justify-between"><span>No. Antrian</span><span class="font-bold">#${Math.floor(Math.random() * 1000)}</span></div>
+            <div class="flex justify-between"><span>Status</span><span class="font-bold text-green-600 italic">VERIFIED</span></div>
+            <div class="flex justify-between"><span id="receipt-nama">...</span><span id="receipt-date">...</span></div>
+        </div>
+
+        <p class="text-[9px] text-zinc-500 text-center uppercase mb-6 italic">Harap screenshot struk ini untuk pengambilan barang di Basecamp</p>
+        
+        <button onclick="window.location.href='index.html'" class="w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-xs">Tutup & Kembali</button>
+    </div>
+</div>
+
         <div class="space-y-2 text-xs">
             <div class="flex justify-between"><span>INV:</span> <span id="struk-inv"></span></div>
             <div class="flex justify-between"><span>NAMA:</span> <span id="struk-nama"></span></div>
@@ -186,6 +223,12 @@
     // Fungsi Tutup Modal
     function closeModal() {
         document.getElementById('checkoutModal').classList.add('hidden');
+    }
+    
+    function toggleKelas() {
+        const status = document.getElementById('user-status').value;
+        const kelasInput = document.getElementById('kelas-input');
+        kelasInput.style.display = (status === 'Siswa MAN') ? 'block' : 'none';
     }
 
     // Submit ke WhatsApp
