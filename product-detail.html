@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk - SYNDICATE 06</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .glass { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); }
+        .animate-dp { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#050505] text-white font-['Inter']">
+
+    <nav class="p-6">
+        <a href="index.html" class="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span class="text-xs font-bold uppercase tracking-widest">Kembali</span>
+        </a>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-4 animate-dp">
+        <div class="grid md:grid-cols-2 gap-12">
+            <div class="relative group">
+                <img id="p-img" src="" class="w-full aspect-square object-cover rounded-[2rem] border border-zinc-800 shadow-2xl">
+                <div id="p-cat" class="absolute top-4 left-4 bg-[#8b0000] text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-lg"></div>
+            </div>
+
+            <div class="flex flex-col">
+                <h1 id="p-name" class="text-3xl md:text-4xl font-black italic tracking-tighter mb-2 uppercase"></h1>
+                <p id="p-price" class="text-2xl font-bold text-red-600 mb-6"></p>
+                
+                <div class="h-px bg-zinc-900 mb-6"></div>
+                
+                <p id="p-desc" class="text-zinc-400 text-sm leading-relaxed mb-8 font-light"></p>
+
+                <div id="size-section" class="hidden mb-8">
+                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3">Pilih Ukuran (Wajib)</label>
+                    <div class="flex gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="size" value="S" class="hidden peer" required>
+                            <span class="w-12 h-12 flex items-center justify-center border border-zinc-800 rounded-xl peer-checked:bg-[#8b0000] peer-checked:border-[#8b0000] transition-all font-bold text-xs">S</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="size" value="M" class="hidden peer">
+                            <span class="w-12 h-12 flex items-center justify-center border border-zinc-800 rounded-xl peer-checked:bg-[#8b0000] peer-checked:border-[#8b0000] transition-all font-bold text-xs">M</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="size" value="L" class="hidden peer">
+                            <span class="w-12 h-12 flex items-center justify-center border border-zinc-800 rounded-xl peer-checked:bg-[#8b0000] peer-checked:border-[#8b0000] transition-all font-bold text-xs">L</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="size" value="XL" class="hidden peer">
+                            <span class="w-12 h-12 flex items-center justify-center border border-zinc-800 rounded-xl peer-checked:bg-[#8b0000] peer-checked:border-[#8b0000] transition-all font-bold text-xs">XL</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="btn-order" class="w-full py-4 bg-red-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-red-700 transition active:scale-95 shadow-lg shadow-red-600/20">
+                  Aquire Piece
+                </button>
+            </div>
+        </div>
+    </main>
+
+ <div id="checkoutModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="glass w-full max-w-md p-8 rounded-[2rem] border border-white/10 animate-dp max-h-[90vh] overflow-y-auto">
+        <h3 class="text-xl font-black uppercase italic tracking-tighter mb-6">Konfirmasi Pesanan</h3>
+        
+        <form id="order-form" class="space-y-4">
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Nama Lengkap</label>
+                <input type="text" name="nama" id="form-nama" required class="w-full bg-white/5 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition" placeholder="Masukkan nama Anda">
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Nomor WhatsApp</label>
+                <input type="tel" name="whatsapp" id="form-whatsapp" required class="w-full bg-white/5 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition" placeholder="Contoh: 08123456789">
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Metode Pengiriman</label>
+                <select name="metode" id="form-metode" required class="w-full bg-[#151515] border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition text-sm text-white">
+                    <option value="" disabled selected>Pilih metode...</option>
+                    <option value="Ambil di Basecamp">Ambil di Basecamp (Istirahat)</option>
+                    <option value="Antar ke Kelas">Antar ke Kelas (+Rp2.000)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Catatan Tambahan</label>
+                <textarea name="catatan" id="form-catatan" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition text-sm h-20" placeholder="Contoh: Kelas X-A / Titip di piket"></textarea>
+            </div>
+
+            <p class="text-[10px] text-zinc-500 text-center">
+                Ada kendala? <a href="https://wa.me/628123456789" target="_blank" class="text-red-500 font-bold hover:underline">Hubungi Admin</a>
+            </p>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeModal()" class="flex-1 py-4 bg-zinc-900 text-white font-bold rounded-xl hover:bg-zinc-800 transition">
+                    BATAL
+                </button>
+                <button type="submit" class="flex-[2] py-4 bg-red-600 text-white font-black uppercase italic tracking-widest rounded-xl hover:bg-red-700 transition">
+                    KIRIM PESANAN
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="successModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black">
+    <div id="struk-area" class="bg-white text-black w-full max-w-sm p-8 rounded-lg font-mono relative overflow-hidden">
+        <div class="text-center border-b-2 border-dashed border-black pb-4 mb-4">
+            <h2 class="font-black text-xl">SYNDICATE 06</h2>
+            <p class="text-[10px]">BUKTI PEMESANAN DIGITAL</p>
+        </div>
+        
+        <div class="space-y-2 text-xs">
+            <div class="flex justify-between"><span>INV:</span> <span id="struk-inv"></span></div>
+            <div class="flex justify-between"><span>NAMA:</span> <span id="struk-nama"></span></div>
+            <div class="flex justify-between"><span>KELAS:</span> <span id="struk-kelas"></span></div>
+            <div class="flex justify-between"><span>ITEM:</span> <span id="struk-item"></span></div>
+            <div class="flex justify-between font-bold pt-2"><span>TOTAL:</span> <span id="struk-total"></span></div>
+            <div class="flex justify-between text-red-600"><span>MIN DP:</span> <span id="struk-dp"></span></div>
+        </div>
+
+        <div class="mt-6 p-2 bg-black text-white text-center text-[10px] uppercase font-bold">
+            Menunggu Verifikasi DP
+        </div>
+        
+        <p class="text-[8px] mt-4 text-center italic">Tunjukkan struk ini ke Basecamp MPK untuk pelunasan & pengambilan barang.</p>
+        
+        <div class="mt-6 flex flex-col gap-2">
+            <button onclick="window.print()" class="bg-zinc-200 p-2 text-[10px] font-bold">CETAK / PDF</button>
+            <button onclick="location.href='index.html'" class="text-blue-600 text-[10px] font-bold">Kembali ke Beranda</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ambil Data dari URL
+    const params = new URLSearchParams(window.location.search);
+    const pName = params.get('name') || "Produk";
+    const pPrice = params.get('price') || "0";
+    const pImg = params.get('img') || "";
+    const pDesc = params.get('desc') || "";
+    const pCat = params.get('cat') || "";
+
+    // Isi Konten Halaman
+    document.getElementById('p-name').innerText = pName;
+    document.getElementById('p-price').innerText = `Rp${parseInt(pPrice).toLocaleString('id-ID')}`;
+    document.getElementById('p-img').src = pImg;
+    document.getElementById('p-desc').innerText = pDesc;
+
+    // Sembunyikan Pilihan Size jika bukan kategori Pakaian
+    const sizeSection = document.getElementById('size-section');
+    if (sizeSection && pCat.toLowerCase() !== 'pakaian') {
+        sizeSection.classList.add('hidden');
+    }
+
+    // --- BAGIAN INI YANG MEMBUAT TOMBOL BERFUNGSI ---
+    const btnOrder = document.getElementById('btn-order');
+    if (btnOrder) {
+        btnOrder.onclick = function() {
+            // Validasi Size jika kategori pakaian
+            if (pCat.toLowerCase() === 'pakaian') {
+                const selectedSize = document.querySelector('input[name="size"]:checked');
+                if (!selectedSize) {
+                    alert('Silakan pilih Size (Ukuran) terlebih dahulu!');
+                    return;
+                }
+            }
+            // Munculkan Modal
+            const modal = document.getElementById('checkoutModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            } else {
+                console.error("Elemen checkoutModal tidak ditemukan!");
+            }
+        };
+    }
+
+    // Fungsi Tutup Modal
+    function closeModal() {
+        document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    // Submit ke WhatsApp
+    const orderForm = document.getElementById('order-form');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const nama = formData.get('nama');
+            const waUser = formData.get('whatsapp');
+            const metode = formData.get('metode');
+            const catatan = formData.get('catatan');
+            const size = document.querySelector('input[name="size"]:checked')?.value || 'N/A';
+            
+            const waAdmin = "628123456789"; // GANTI NOMOR WA DISINI
+            
+            let pesan = `Halo SYNDICATE 06,\n\n`;
+            pesan += `Saya *${nama}* ingin memesan:\n`;
+            pesan += `📦 *${pName}*\n`;
+            if(pCat.toLowerCase() === 'pakaian') pesan += `📏 Size: *${size}*\n`;
+            pesan += `💰 Harga: Rp${parseInt(pPrice).toLocaleString('id-ID')}\n`;
+            pesan += `🚚 Metode: *${metode}*\n`;
+            pesan += `📱 No WA: ${waUser}\n`;
+            if(catatan) pesan += `📝 Catatan: ${catatan}\n\n`;
+            pesan += `Mohon segera diproses.`;
+
+            window.open(`https://wa.me/${waAdmin}?text=${encodeURIComponent(pesan)}`, '_blank');
+            closeModal();
+        });
+    }
+</script>
+</body>
+</html>
