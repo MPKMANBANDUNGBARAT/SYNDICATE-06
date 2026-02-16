@@ -131,31 +131,29 @@
     </div>
 </div>
 
-<div id="successModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black">
-    <div id="struk-area" class="bg-white text-black w-full max-w-sm p-8 rounded-lg font-mono relative overflow-hidden">
-        <div class="text-center border-b-2 border-dashed border-black pb-4 mb-4">
-            <h2 class="font-black text-xl">SYNDICATE 06</h2>
-            <p class="text-[10px]">BUKTI PEMESANAN DIGITAL</p>
-        </div>
-        
-        <div id="successModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
-    <div class="bg-white text-black p-8 rounded-none w-full max-w-sm shadow-2xl relative overflow-hidden font-mono">
-        <div class="absolute top-0 left-0 right-0 h-2 bg-zinc-200" style="clip-path: polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0);"></div>
-        
+<div id="successModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+    <div class="receipt-paper w-full max-w-xs animate-dp">
         <div class="text-center mb-6">
-            <h2 class="text-xl font-black italic uppercase tracking-tighter">SYNDICATE 06</h2>
-            <p class="text-[10px] uppercase">Official Digital Receipt</p>
+            <h2 class="text-2xl font-black italic italic tracking-tighter">SYNDICATE 06</h2>
+            <p class="text-[10px] uppercase tracking-widest text-zinc-400">Official Order Receipt</p>
         </div>
-
-        <div class="border-y border-dashed border-zinc-300 py-4 my-4 space-y-2 text-xs">
-            <div class="flex justify-between"><span>No. Antrian</span><span class="font-bold">#${Math.floor(Math.random() * 1000)}</span></div>
-            <div class="flex justify-between"><span>Status</span><span class="font-bold text-green-600 italic">VERIFIED</span></div>
-            <div class="flex justify-between"><span id="receipt-nama">...</span><span id="receipt-date">...</span></div>
-        </div>
-
-        <p class="text-[9px] text-zinc-500 text-center uppercase mb-6 italic">Harap screenshot struk ini untuk pengambilan barang di Basecamp</p>
         
-        <button onclick="window.location.href='index.html'" class="w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-xs">Tutup & Kembali</button>
+        <div class="border-y border-dashed border-zinc-200 py-4 my-4 space-y-3 text-xs font-mono">
+            <div class="flex justify-between"><span>ID ORDER</span><span id="receipt-id">#SYN-0000</span></div>
+            <div class="flex justify-between"><span>PEMESAN</span><span id="receipt-nama" class="font-bold"></span></div>
+            <div class="flex justify-between"><span>ITEM</span><span id="receipt-produk"></span></div>
+            <div class="flex justify-between"><span>STATUS</span><span class="text-green-600 font-bold italic italic">TERCATAT</span></div>
+            <hr class="border-dashed">
+            <div class="flex justify-between text-sm"><span>TOTAL</span><span id="receipt-total" class="font-bold"></span></div>
+        </div>
+
+        <p class="text-[9px] text-zinc-400 text-center mb-6 leading-relaxed">
+            Harap screenshot struk ini dan tunjukkan ke Admin di Basecamp MPK untuk pengambilan barang.
+        </p>
+        
+        <button onclick="window.location.href='index.html'" class="w-full py-4 bg-black text-white text-[10px] font-bold uppercase tracking-[0.3em]">
+            SELESAI
+        </button>
     </div>
 </div>
 
@@ -239,23 +237,43 @@
         }
     }
 
-    // 6. Submit ke WhatsApp dengan Data Tambahan
-    const orderForm = document.getElementById('order-form');
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            const nama = formData.get('nama');
-            const waUser = formData.get('whatsapp');
-            const status = formData.get('status'); // Tambahan: Siswa/Umum
-            const kelas = formData.get('kelas') || "-"; // Tambahan: Kelas
-            const metode = formData.get('metode');
-            const catatan = formData.get('catatan');
-            const size = document.querySelector('input[name="size"]:checked')?.value || 'N/A';
-            
-            // --- GANTI NOMOR ADMIN DI SINI ---
-            const waAdmin = "628123456789"; 
+    // 6. Submit 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwxXCGVcDF-B4ObH21JT-fpxt_vFOJMiwQmIwVPi6oyaWhgTxy6jR6du_5Squ_ahKEjyg/exec'; // Ganti dengan URL hasil deploy tadi
+
+orderForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-order');
+    btn.innerText = "MEMPROSES...";
+    btn.disabled = true;
+
+    const formData = new FormData(this);
+    // Tambahkan data produk manual ke formData
+    formData.append('produk', pName);
+    formData.append('size', document.querySelector('input[name="size"]:checked')?.value || 'N/A');
+
+    fetch(scriptURL, { method: 'POST', body: formData })
+    .then(response => {
+        // Tampilkan Struk Digital
+        closeModal();
+        showReceipt(formData);
+    })
+    .catch(error => {
+        alert("Gagal terhubung ke database. Silakan coba lagi.");
+        btn.disabled = false;
+        btn.innerText = "KIRIM PESANAN";
+    });
+
+
+    function showReceipt(data) {
+        const successModal = document.getElementById('successModal');
+        // Isi data ke struk
+        document.getElementById('receipt-id').innerText = "#SYN-" + Math.floor(Math.random() * 9000 + 1000);
+        document.getElementById('receipt-nama').innerText = data.get('nama');
+        document.getElementById('receipt-produk').innerText = pName;
+        document.getElementById('receipt-total').innerText = document.getElementById('p-price').innerText;
+    
+        successModal.classList.remove('hidden');
+    }
             
             let pesan = `*ORDER BARU - SYNDICATE 06*\n`;
             pesan += `━━━━━━━━━━━━━━━━━━\n\n`;
@@ -287,7 +305,7 @@
                 successModal.classList.remove('hidden');
             }
         });
-    }
+      
 </script>
 </body>
 </html>
