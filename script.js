@@ -1,191 +1,124 @@
-/* Import Base dari CSS kamu sebelumnya */
-body {
-    margin: 0; padding: 0; font-family: 'Inter', sans-serif;
-    color: white; background-color: #050505;
-    background-image: radial-gradient(circle at 50% -20%, rgba(185, 28, 28, 0.15) 0%, transparent 50%);
-    background-attachment: fixed;
-}
-
-.glass {
-    background: rgba(20, 20, 20, 0.7);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.header-sticky {
-    position: sticky; top: 0;
-}
-
-input {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-    color: white;
-}
-
-/* Category Pill */
-.category-pill {
-    padding: 6px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    margin-right: 8px;
-    font-size: 12px;
-    transition: 0.3s;
-}
-
-.category-pill.active {
-    background: #b91c1c;
-    border-color: #b91c1c;
-}
-
-/* Marketplace Card Style */
-.item-card {
-    background: #111;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: 0.3s;
-}
-
-.item-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-}
-
-.item-info {
-    padding: 10px;
-}
-
-.price-tag {
-    color: #ef4444;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-/* Menambahkan efek glow dan interaksi pada kartu produk */
-.item-card {
-    background: #0a0a0a; /* Warna lebih gelap agar kontras */
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.item-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(220, 38, 38, 0.5); /* Border merah saat di-hover */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(220, 38, 38, 0.1);
-}
-
-/* Efek zoom pada gambar */
-.item-card img {
-    transition: transform 0.6s ease;
-}
-
-.item-card:hover img {
-    transform: scale(1.1);
-}
-
-/* Memperbaiki tipografi agar lebih tajam */
-.price-tag {
-    letter-spacing: -0.02em;
-    font-feature-settings: "tnum"; /* Angka rata (tabular figures) */
-}
-
-/* Font Khusus untuk Kesan 'Lab/Syndicate' */
-.tech-spec {
-    font-family: 'Courier New', Courier, monospace;
-    letter-spacing: 0.05em;
-}
-
-/* Mengubah warna merah agar lebih mewah (Deep Maroon) */
-.text-brand-red {
-    color: #8b0000;
-}
-
-.bg-brand-red {
-    background-color: #8b0000;
-}
-
-/* Micro-Interaction: View Detail Overlay */
-.item-card .overlay {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    background: rgba(0, 0, 0, 0.7);
-}
-
-.item-card:hover .overlay {
-    opacity: 1;
-}
-
-/* Skeleton Loading Shimmer */
-.shimmer {
-    background: linear-gradient(90deg, #121212 25%, #1a1a1a 50%, #121212 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-/* Memberikan ruang di bawah agar konten tidak tertutup tombol sticky mobile */
-main {
-    padding-bottom: 120px;
-}
-
-@media (min-width: 768px) {
-    main {
-        padding-bottom: 48px;
+const products = [
+    {
+        id: 1,
+        name: "Lanyard Premium MPK",
+        price: "15000",
+        stock: 5,
+        sold: "45",
+        rating: "4.9",
+        image: "foto/lanyard.jpg",
+        category: "Aksesoris",
+        desc: "Lanyard kualitas premium dengan bahan tisu lembut. Cocok untuk kartu pelajar atau id card panitia."
+    },
+    {
+        id: 2,
+        name: "Basreng Pedas Daun Jeruk",
+        price: "5000",
+        stock: 5,
+        sold: "210",
+        rating: "5.0",
+        image: "foto/basreng.jpg",
+        category: "Makanan",
+        desc: "Basreng renyah dengan bumbu pedas melimpah dan aroma daun jeruk yang segar. Isi melimpah, dijamin nagih untuk teman belajar!"
+    },
+    {
+        id: 3,
+        name: "Brownies Lumer Cup",
+        price: "10000",
+        stock: 5,
+        sold: "85",
+        rating: "4.9",
+        image: "foto/brownies.jpg",
+        category: "Makanan",
+        desc: "Brownies cokelat lumer di dalam cup. Manisnya pas dan bikin mood balik lagi setelah pelajaran matematika!"
+    },
+    {
+        id: 4,
+        name: "SYNDICATE 06 // BATCH 01",
+        price: "85000",
+        stock: 5,
+        sold: "12",
+        rating: "5.0",
+        image: "foto/tshirt.jpg",
+        category: "Pakaian",
+        desc: "Kaos eksklusif SYNDICATE 06. Bahan katun combed 30s yang sangat nyaman."
     }
+];
+
+// Fungsi untuk menampilkan produk ke HTML
+function renderProducts(data) {
+    const grid = document.getElementById('product-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = data.map(p => `
+        <div class="item-card flex flex-col cursor-pointer group" onclick="bukaProduk('${p.name}', '${p.price}', '${p.image}', '${p.desc}', '${p.category}')">
+            <div class="relative overflow-hidden">
+                <img src="${p.image}" class="w-full aspect-[4/5] object-cover transition-transform duration-500">
+                <div class="absolute top-2 right-2 bg-[#8b0000] text-[8px] font-bold px-2 py-1 rounded shadow-lg uppercase">${p.category}</div>
+                <div class="overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span class="bg-white text-black text-[10px] font-bold px-3 py-2 rounded-full">LIHAT DETAIL</span>
+                </div>
+            </div>
+            <div class="item-info p-3">
+                <h3 class="text-xs font-normal line-clamp-2 mb-1 text-zinc-300">${p.name}</h3>
+                <p class="price-tag text-sm font-bold text-red-500">Rp${parseInt(p.price).toLocaleString('id-ID')}</p>
+            </div>
+        </div>
+    `).join('');
+
+    // Di dalam loop renderProducts, tambahkan logika ini pada bagian tombol/card
+const isOutOfStock = p.stock === 0;
+const cardHTML = `
+    <div class="${isOutOfStock ? 'opacity-50 grayscale' : ''} ...">
+        ${isOutOfStock ? '<div class="absolute top-2 left-2 bg-zinc-900 text-white text-[8px] px-2 py-1 rounded">HABIS</div>' : ''}
+        ...
+    </div>
+`;
 }
 
-/* Memperhalus input focus */
-input:focus, select:focus, textarea:focus {
-    border-color: #8b0000 !important;
-    box-shadow: 0 0 15px rgba(139, 0, 0, 0.2);
+// Fungsi untuk berpindah ke halaman detail
+function bukaProduk(nama, harga, gambar, deskripsi, kategori) {
+    const params = new URLSearchParams({
+        name: nama,
+        price: harga,
+        img: gambar,
+        desc: deskripsi,
+        cat: kategori
+    });
+    window.location.href = `product-detail.html?${params.toString()}`;
 }
 
-/* Efek fokus pada search input ala SYNDICATE 06 */
-#search-input {
-    background: rgba(20, 20, 20, 0.5);
-    backdrop-filter: blur(10px);
-}
+// Inisialisasi saat dokumen siap
+document.addEventListener('DOMContentLoaded', () => {
+    // Tampilkan semua produk pertama kali
+    renderProducts(products);
 
-#search-input:focus {
-    background: rgba(30, 30, 30, 0.8);
-    border-color: #8b0000;
-    box-shadow: 0 0 20px rgba(139, 0, 0, 0.1);
-}
+    const searchInput = document.getElementById('search-input');
+    const filterBtns = document.querySelectorAll('.filter-btn');
 
-/* Animasi saat produk difilter */
-.item-card {
-    animation: fadeIn 0.5s ease forwards;
-}
+    function filterAll() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+        const activeBtn = document.querySelector('.filter-btn.active');
+        const activeCategory = activeBtn ? activeBtn.dataset.category : 'all';
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        const filtered = products.filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(searchTerm);
+            const matchesCategory = activeCategory === 'all' || p.category.toLowerCase() === activeCategory.toLowerCase();
+            return matchesSearch && matchesCategory;
+        });
 
-/* Pastikan Tech-Spec terbaca tajam */
-.tech-spec {
-    font-family: 'Courier New', Courier, monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-size: 0.75rem; /* Sedikit lebih besar agar tidak 'hilang' */
-}
+        renderProducts(filtered);
+    }
 
-/* Modal Overlay yang Solid */
-#checkoutModal, #successModal {
-    z-index: 999 !important;
-}
+    if(searchInput) {
+        searchInput.addEventListener('input', filterAll);
+    }
 
-/* Animasi Fade In untuk produk saat difilter */
-#main-grid > div {
-    animation: fadeIn 0.4s ease-out forwards;
-}
-
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active', 'bg-[#8b0000]', 'text-white'));
+            btn.classList.add('active', 'bg-[#8b0000]', 'text-white');
+            filterAll();
+        });
+    });
+});
