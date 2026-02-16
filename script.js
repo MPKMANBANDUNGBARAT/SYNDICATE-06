@@ -14,12 +14,12 @@ const products = [
         id: 2,
         name: "Basreng Pedas Daun Jeruk",
         price: "5000",
-        stock: 5,
+        stock: 0, // Contoh stok habis
         sold: "210",
         rating: "5.0",
         image: "foto/basreng.jpg",
         category: "Makanan",
-        desc: "Basreng renyah dengan bumbu pedas melimpah dan aroma daun jeruk yang segar. Isi melimpah, dijamin nagih untuk teman belajar!"
+        desc: "Basreng renyah dengan bumbu pedas melimpah dan aroma daun jeruk yang segar."
     },
     {
         id: 3,
@@ -30,7 +30,7 @@ const products = [
         rating: "4.9",
         image: "foto/brownies.jpg",
         category: "Makanan",
-        desc: "Brownies cokelat lumer di dalam cup. Manisnya pas dan bikin mood balik lagi setelah pelajaran matematika!"
+        desc: "Brownies cokelat lumer di dalam cup. Manisnya pas!"
     },
     {
         id: 4,
@@ -41,56 +41,69 @@ const products = [
         rating: "5.0",
         image: "foto/tshirt.jpg",
         category: "Pakaian",
-        desc: "Kaos eksklusif SYNDICATE 06. Bahan katun combed 30s yang sangat nyaman."
+        desc: "Kaos eksklusif SYNDICATE 06. Bahan katun combed 30s."
     }
 ];
 
-// Fungsi untuk menampilkan produk ke HTML
-function renderProducts(data) {
+function renderProducts(productsToRender) {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
-    
-    grid.innerHTML = data.map(p => `
-        <div class="item-card flex flex-col cursor-pointer group" onclick="bukaProduk('${p.name}', '${p.price}', '${p.image}', '${p.desc}', '${p.category}')">
-            <div class="relative overflow-hidden">
-                <img src="${p.image}" class="w-full aspect-[4/5] object-cover transition-transform duration-500">
-                <div class="absolute top-2 right-2 bg-[#8b0000] text-[8px] font-bold px-2 py-1 rounded shadow-lg uppercase">${p.category}</div>
-                <div class="overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span class="bg-white text-black text-[10px] font-bold px-3 py-2 rounded-full">LIHAT DETAIL</span>
+    grid.innerHTML = '';
+
+    productsToRender.forEach(p => {
+        const isOutOfStock = p.stock <= 0;
+        const card = document.createElement('div');
+        // Tambahkan efek grayscale jika stok habis
+        card.className = `item-card group relative cursor-pointer ${isOutOfStock ? 'opacity-70 grayscale' : ''}`;
+        
+        card.innerHTML = `
+            <div class="relative overflow-hidden aspect-square">
+                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                ${isOutOfStock ? `
+                    <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span class="border-2 border-white px-3 py-1 text-[10px] font-black tracking-[0.3em] uppercase rotate-[-15deg]">HABIS</span>
+                    </div>
+                ` : ''}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-white">Lihat Detail</span>
                 </div>
             </div>
-            <div class="item-info p-3">
-                <h3 class="text-xs font-normal line-clamp-2 mb-1 text-zinc-300">${p.name}</h3>
-                <p class="price-tag text-sm font-bold text-red-500">Rp${parseInt(p.price).toLocaleString('id-ID')}</p>
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-[11px] font-bold uppercase tracking-tighter text-zinc-400">${p.category}</h3>
+                    <div class="flex items-center gap-1">
+                        <i class="fa-solid fa-star text-[8px] text-yellow-500"></i>
+                        <span class="text-[9px] font-bold text-zinc-500">${p.rating}</span>
+                    </div>
+                </div>
+                <h2 class="text-sm font-black italic uppercase tracking-tighter mb-2 line-clamp-1">${p.name}</h2>
+                <div class="flex items-center justify-between">
+                    <span class="text-red-500 font-black text-sm tracking-tighter">Rp${parseInt(p.price).toLocaleString('id-ID')}</span>
+                    <span class="text-[9px] text-zinc-600 font-bold uppercase">${p.sold} Terjual</span>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
 
-    // Di dalam loop renderProducts, tambahkan logika ini pada bagian tombol/card
-const isOutOfStock = p.stock === 0;
-const cardHTML = `
-    <div class="${isOutOfStock ? 'opacity-50 grayscale' : ''} ...">
-        ${isOutOfStock ? '<div class="absolute top-2 left-2 bg-zinc-900 text-white text-[8px] px-2 py-1 rounded">HABIS</div>' : ''}
-        ...
-    </div>
-`;
-}
-
-// Fungsi untuk berpindah ke halaman detail
-function bukaProduk(nama, harga, gambar, deskripsi, kategori) {
-    const params = new URLSearchParams({
-        name: nama,
-        price: harga,
-        img: gambar,
-        desc: deskripsi,
-        cat: kategori
+        // Jangan izinkan klik jika stok habis
+        if (!isOutOfStock) {
+            card.onclick = () => {
+                const params = new URLSearchParams({
+                    name: p.name,
+                    price: p.price,
+                    img: p.image,
+                    desc: p.desc,
+                    cat: p.category
+                });
+                window.location.href = `product-detail.html?${params.toString()}`;
+            };
+        }
+        
+        grid.appendChild(card);
     });
-    window.location.href = `product-detail.html?${params.toString()}`;
 }
 
-// Inisialisasi saat dokumen siap
+// Inisialisasi Event Listener
 document.addEventListener('DOMContentLoaded', () => {
-    // Tampilkan semua produk pertama kali
     renderProducts(products);
 
     const searchInput = document.getElementById('search-input');
@@ -103,16 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filtered = products.filter(p => {
             const matchesSearch = p.name.toLowerCase().includes(searchTerm);
-            const matchesCategory = activeCategory === 'all' || p.category.toLowerCase() === activeCategory.toLowerCase();
+            const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
             return matchesSearch && matchesCategory;
         });
 
         renderProducts(filtered);
     }
 
-    if(searchInput) {
-        searchInput.addEventListener('input', filterAll);
-    }
+    if(searchInput) searchInput.addEventListener('input', filterAll);
 
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
