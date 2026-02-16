@@ -78,7 +78,8 @@
 
             <div>
                 <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Nomor WhatsApp</label>
-                <input type="tel" name="whatsapp" pattern="[0-9]*" inputmode="numeric" placeholder="Contoh: 08123456789" required class="...">
+                <input type="tel" name="whatsapp" pattern="[0-9]*" inputmode="numeric" placeholder="Contoh: 08123456789" required class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:border-red-600 outline-none">
+                <p class="text-[10px] text-zinc-500 mt-1">*Masukkan angka saja (08...)</p>
             </div>
 
             <div>
@@ -114,7 +115,10 @@
             <p class="text-[10px] text-zinc-500 text-center">
                 Ada kendala? <a href="https://wa.me/628123456789" target="_blank" class="text-red-500 font-bold hover:underline">Hubungi Admin</a>
             </p>
-
+            <div class="p-3 bg-red-600/10 border border-red-600/20 rounded-xl mb-4">
+                <p class="text-[10px] text-red-500 font-bold uppercase italic mb-1">Info Pembayaran:</p>
+                <p class="text-[11px] text-zinc-400 font-medium">Dana: 0812xxxxxx (A.n Nama) atau Cash di Basecamp MPK.</p>
+            </div>
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="closeModal()" class="flex-1 py-4 bg-zinc-900 text-white font-bold rounded-xl hover:bg-zinc-800 transition">
                     BATAL
@@ -178,7 +182,7 @@
 </div>
 
 <script>
-    // Ambil Data dari URL
+    // 1. Ambil Data dari URL
     const params = new URLSearchParams(window.location.search);
     const pName = params.get('name') || "Produk";
     const pPrice = params.get('price') || "0";
@@ -186,19 +190,23 @@
     const pDesc = params.get('desc') || "";
     const pCat = params.get('cat') || "";
 
-    // Isi Konten Halaman
+    // 2. Isi Konten Halaman
     document.getElementById('p-name').innerText = pName;
     document.getElementById('p-price').innerText = `Rp${parseInt(pPrice).toLocaleString('id-ID')}`;
     document.getElementById('p-img').src = pImg;
     document.getElementById('p-desc').innerText = pDesc;
 
-    // Sembunyikan Pilihan Size jika bukan kategori Pakaian
+    // 3. Kontrol Tampilan Size Section
     const sizeSection = document.getElementById('size-section');
-    if (sizeSection && pCat.toLowerCase() !== 'pakaian') {
-        sizeSection.classList.add('hidden');
+    if (sizeSection) {
+        if (pCat.toLowerCase() === 'pakaian') {
+            sizeSection.classList.remove('hidden');
+        } else {
+            sizeSection.classList.add('hidden');
+        }
     }
 
-    // --- BAGIAN INI YANG MEMBUAT TOMBOL BERFUNGSI ---
+    // 4. Logika Tombol Utama (Aquire Piece)
     const btnOrder = document.getElementById('btn-order');
     if (btnOrder) {
         btnOrder.onclick = function() {
@@ -206,7 +214,7 @@
             if (pCat.toLowerCase() === 'pakaian') {
                 const selectedSize = document.querySelector('input[name="size"]:checked');
                 if (!selectedSize) {
-                    alert('Silakan pilih Size (Ukuran) terlebih dahulu!');
+                    alert('⚠️ Silakan pilih Size (Ukuran) terlebih dahulu!');
                     return;
                 }
             }
@@ -214,49 +222,70 @@
             const modal = document.getElementById('checkoutModal');
             if (modal) {
                 modal.classList.remove('hidden');
-            } else {
-                console.error("Elemen checkoutModal tidak ditemukan!");
             }
         };
     }
 
-    // Fungsi Tutup Modal
+    // 5. Fungsi Bantu (Toggle Kelas & Close)
     function closeModal() {
         document.getElementById('checkoutModal').classList.add('hidden');
     }
-    
+
     function toggleKelas() {
         const status = document.getElementById('user-status').value;
         const kelasInput = document.getElementById('kelas-input');
-        kelasInput.style.display = (status === 'Siswa MAN') ? 'block' : 'none';
+        if (kelasInput) {
+            kelasInput.style.display = (status === 'Siswa MAN') ? 'block' : 'none';
+        }
     }
 
-    // Submit ke WhatsApp
+    // 6. Submit ke WhatsApp dengan Data Tambahan
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
         orderForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            
             const nama = formData.get('nama');
             const waUser = formData.get('whatsapp');
+            const status = formData.get('status'); // Tambahan: Siswa/Umum
+            const kelas = formData.get('kelas') || "-"; // Tambahan: Kelas
             const metode = formData.get('metode');
             const catatan = formData.get('catatan');
             const size = document.querySelector('input[name="size"]:checked')?.value || 'N/A';
             
-            const waAdmin = "628123456789"; // GANTI NOMOR WA DISINI
+            // --- GANTI NOMOR ADMIN DI SINI ---
+            const waAdmin = "628123456789"; 
             
-            let pesan = `Halo SYNDICATE 06,\n\n`;
-            pesan += `Saya *${nama}* ingin memesan:\n`;
-            pesan += `📦 *${pName}*\n`;
-            if(pCat.toLowerCase() === 'pakaian') pesan += `📏 Size: *${size}*\n`;
-            pesan += `💰 Harga: Rp${parseInt(pPrice).toLocaleString('id-ID')}\n`;
-            pesan += `🚚 Metode: *${metode}*\n`;
-            pesan += `📱 No WA: ${waUser}\n`;
-            if(catatan) pesan += `📝 Catatan: ${catatan}\n\n`;
-            pesan += `Mohon segera diproses.`;
+            let pesan = `*ORDER BARU - SYNDICATE 06*\n`;
+            pesan += `━━━━━━━━━━━━━━━━━━\n\n`;
+            pesan += `👤 *Pemesan:* ${nama} (${status})\n`;
+            if(status === 'Siswa MAN') pesan += `🏫 *Kelas:* ${kelas}\n`;
+            pesan += `📦 *Produk:* ${pName}\n`;
+            
+            if(pCat.toLowerCase() === 'pakaian') {
+                pesan += `📏 *Size:* ${size}\n`;
+            }
+            
+            pesan += `💰 *Total:* Rp${parseInt(pPrice).toLocaleString('id-ID')}\n`;
+            pesan += `🚚 *Metode:* ${metode}\n`;
+            pesan += `📱 *WhatsApp:* ${waUser}\n`;
+            
+            if(catatan) pesan += `\n📝 *Catatan:* _${catatan}_\n`;
+            pesan += `\n━━━━━━━━━━━━━━━━━━\n`;
+            pesan += `_Mohon segera diproses, terima kasih!_`;
 
+            // Buka WhatsApp
             window.open(`https://wa.me/${waAdmin}?text=${encodeURIComponent(pesan)}`, '_blank');
+            
+            // Munculkan Struk Digital (Success Modal)
             closeModal();
+            const successModal = document.getElementById('successModal');
+            if (successModal) {
+                // Update data struk jika ada elementnya
+                if(document.getElementById('receipt-nama')) document.getElementById('receipt-nama').innerText = nama;
+                successModal.classList.remove('hidden');
+            }
         });
     }
 </script>
