@@ -81,7 +81,15 @@
                 <input type="tel" name="whatsapp" pattern="[0-9]*" inputmode="numeric" placeholder="Contoh: 08123456789" required class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:border-red-600 outline-none">
                 <p class="text-[10px] text-zinc-500 mt-1">*Masukkan angka saja (08...)</p>
             </div>
-
+            
+            <div class="mb-4">
+                <label class="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Jumlah</label>
+                <div class="flex items-center gap-4 bg-white/5 p-2 rounded-xl border border-white/10">
+                    <button type="button" onclick="changeQty(-1)" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-lg hover:bg-red-900">-</button>
+                    <input type="number" name="jumlah" id="input-jumlah" value="1" min="1" class="bg-transparent text-center w-full font-bold focus:outline-none" readonly>
+                    <button type="button" onclick="changeQty(1)" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-lg hover:bg-red-900">+</button>
+                </div>
+      
             <div>
                 <label class="text-[10px] uppercase tracking-widest text-zinc-500 ml-1">Metode Pengiriman</label>
                 <select name="metode" id="form-metode" required class="w-full bg-[#151515] border border-white/10 p-3 rounded-xl focus:outline-none focus:border-red-600 transition text-sm text-white">
@@ -238,73 +246,115 @@
     }
 
     // 6. Submit 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwxXCGVcDF-B4ObH21JT-fpxt_vFOJMiwQmIwVPi6oyaWhgTxy6jR6du_5Squ_ahKEjyg/exec'; // Ganti dengan URL hasil deploy tadi
+  // Gantilah scriptURL dengan URL Web App dari Google Apps Script kamu
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwgNa-IFtP8A2qdbkqvc7E2-DJ57ajF2QovHCJArTX7zT1xtEfJaVXiaiA2qRd0vXms5A/exec';
 
-orderForm.addEventListener('submit', function(e) {
+// FUNGSI TAMBAH/KURANG JUMLAH
+function changeQty(amt) {
+    const input = document.getElementById('input-jumlah');
+    let val = parseInt(input.value) + amt;
+    if (val < 1) val = 1;
+    input.value = val;
+    // Jika ada fungsi hitung total real-time, panggil di sini
+}
+
+// SAAT FORM DIKIRIM
+document.getElementById('order-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const btn = document.getElementById('submit-order');
-    btn.innerText = "MEMPROSES...";
+    const btn = e.submitter;
+    const originalText = btn.innerHTML;
+    
+    // 1. Ambil Data Form
+    const formData = new FormData(this);
+    const nama = formData.get('nama');
+    const waUser = formData.get('whatsapp');
+    const catatan = formData.get('catatan') || "-";
+    const jumlah = formData.get('jumlah') || 1;
+    
+    // Ambil Size (Hanya jika kategori pakaian)
+    const selectedSize = document.querySelector('input[name="size"]:checked')?.value || 'N/A';
+    
+    // 2. Generate ID Pesanan & Hitung Total
+    const orderID = "SYN-" + Date.now().toString().slice(-6);
+    const hargaSatuan = parseInt(pPrice);
+    const subtotal = hargaSatuan * jumlah;
+
+    // Tambahkan data ke formData untuk Google Sheets
+    formData.append('orderID', orderID);
+    formData.append('produk', pName);
+    formData.append('size', selectedSize);
+    formData.append('subtotal', subtotal);
+
+    // Animasi Loading Tombol
+    btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Memproses...";
     btn.disabled = true;
 
-    const formData = new FormData(this);
-    // Tambahkan data produk manual ke formData
-    formData.append('produk', pName);
-    formData.append('size', document.querySelector('input[name="size"]:checked')?.value || 'N/A');
+    // 3. KIRIM DATA KE GOOGLE SHEETS
+    fetch(scriptURL, { 
+        method: 'POST', 
+        body: formData,
+        mode: 'no-cors' 
+    })
+    .then(() => {
+        // --- LOGIKA WHATSAPP ---
+        const waAdmin = "628123456789"; // GANTI DENGAN NOMOR WA ADMIN
+        let pesan = `*ORDER BARU - SYNDICATE 06*\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━\n\n`;
+        pesan += `🆔 *ID Order:* ${orderID}\n`;
+        pesan += `👤 *Pemesan:* ${nama}\n`;
+        pesan += `📦 *Produk:* ${pName}\n`;
+        pesan += `🔢 *Jumlah:* ${jumlah} pcs\n`;
+        
+        if(pCat.toLowerCase() === 'pakaian') {
+            pesan += `📏 *Size:* ${selectedSize}\n`;
+        }
+        
+        pesan += `💰 *Total:* Rp${subtotal.toLocaleString('id-ID')}\n`;
+        pesan += `📱 *WhatsApp:* ${waUser}\n`;
+        
+        if(catatan !== "-") pesan += `\n📝 *Catatan:* _${catatan}_\n`;
+        pesan += `\n━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `_Mohon segera diproses, terima kasih!_`;
 
-    fetch(scriptURL, { method: 'POST', body: formData })
-    .then(response => {
-        // Tampilkan Struk Digital
-        closeModal();
-        showReceipt(formData);
+        // Buka WhatsApp (Opsional: bisa ditaruh setelah tutup modal atau langsung)
+        window.open(`https://wa.me/${waAdmin}?text=${encodeURIComponent(pesan)}`, '_blank');
+
+        // --- TAMPILKAN STRUK DIGITAL ---
+        document.getElementById('checkoutModal').classList.add('hidden');
+        const successModal = document.getElementById('successModal');
+        
+        successModal.innerHTML = `
+            <div class="glass p-8 rounded-[2rem] border border-red-500/30 text-center animate-dp">
+                <div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-receipt text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-1 uppercase italic">Pesanan Berhasil!</h3>
+                <p class="text-zinc-500 text-[10px] mb-4">ID: ${orderID}</p>
+                
+                <div class="text-left bg-black/40 p-4 rounded-xl border border-white/5 mb-6 text-sm">
+                    <div class="flex justify-between mb-2"><span class="text-zinc-400">Nama:</span><span class="font-bold">${nama}</span></div>
+                    <div class="flex justify-between mb-2"><span class="text-zinc-400">Produk:</span><span class="font-bold">${pName} (${jumlah}x)</span></div>
+                    ${pCat.toLowerCase() === 'pakaian' ? `<div class="flex justify-between mb-2"><span class="text-zinc-400">Size:</span><span class="font-bold">${selectedSize}</span></div>` : ''}
+                    <div class="border-t border-white/10 my-2 pt-2 flex justify-between">
+                        <span class="text-zinc-400">Total Bayar:</span>
+                        <span class="font-bold text-red-500 text-lg">Rp${subtotal.toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+
+                <p class="text-zinc-400 text-[11px] mb-6">Screenshot struk ini dan tunjukkan ke Admin saat pengambilan barang.</p>
+                
+                <button onclick="window.location.href='index.html'" class="w-full py-3 bg-red-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest">Kembali ke Toko</button>
+            </div>
+        `;
+        successModal.classList.remove('hidden');
     })
     .catch(error => {
-        alert("Gagal terhubung ke database. Silakan coba lagi.");
+        console.error('Error!', error.message);
+        alert("Gagal mengirim pesanan. Cek koneksi!");
+        btn.innerHTML = originalText;
         btn.disabled = false;
-        btn.innerText = "KIRIM PESANAN";
     });
-
-
-    function showReceipt(data) {
-        const successModal = document.getElementById('successModal');
-        // Isi data ke struk
-        document.getElementById('receipt-id').innerText = "#SYN-" + Math.floor(Math.random() * 9000 + 1000);
-        document.getElementById('receipt-nama').innerText = data.get('nama');
-        document.getElementById('receipt-produk').innerText = pName;
-        document.getElementById('receipt-total').innerText = document.getElementById('p-price').innerText;
-    
-        successModal.classList.remove('hidden');
-    }
-            
-            let pesan = `*ORDER BARU - SYNDICATE 06*\n`;
-            pesan += `━━━━━━━━━━━━━━━━━━\n\n`;
-            pesan += `👤 *Pemesan:* ${nama} (${status})\n`;
-            if(status === 'Siswa MAN') pesan += `🏫 *Kelas:* ${kelas}\n`;
-            pesan += `📦 *Produk:* ${pName}\n`;
-            
-            if(pCat.toLowerCase() === 'pakaian') {
-                pesan += `📏 *Size:* ${size}\n`;
-            }
-            
-            pesan += `💰 *Total:* Rp${parseInt(pPrice).toLocaleString('id-ID')}\n`;
-            pesan += `🚚 *Metode:* ${metode}\n`;
-            pesan += `📱 *WhatsApp:* ${waUser}\n`;
-            
-            if(catatan) pesan += `\n📝 *Catatan:* _${catatan}_\n`;
-            pesan += `\n━━━━━━━━━━━━━━━━━━\n`;
-            pesan += `_Mohon segera diproses, terima kasih!_`;
-
-            // Buka WhatsApp
-            window.open(`https://wa.me/${waAdmin}?text=${encodeURIComponent(pesan)}`, '_blank');
-            
-            // Munculkan Struk Digital (Success Modal)
-            closeModal();
-            const successModal = document.getElementById('successModal');
-            if (successModal) {
-                // Update data struk jika ada elementnya
-                if(document.getElementById('receipt-nama')) document.getElementById('receipt-nama').innerText = nama;
-                successModal.classList.remove('hidden');
-            }
-        });
+});
       
 </script>
 </body>
